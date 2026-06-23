@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relatórios · Ferragens Negrão</title>
+  <link rel="stylesheet" href="css/styles.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    .btn-filtro {
+      padding: 6px 12px;
+      border: 1px solid var(--borda);
+      background: white;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--texto);
+      outline: none;
+      opacity: 1;
+    }
+    .btn-filtro:hover {
+      background: #f5f5f5;
+      border-color: var(--azul);
+      color: var(--texto);
+      opacity: 1;
+    }
+    .btn-filtro:focus {
+      box-shadow: 0 0 0 3px rgba(15, 106, 167, 0.1);
+      background: #f5f5f5;
+    }
+    .btn-filtro.ativo {
+      background: var(--azul);
+      color: white;
+      border-color: var(--azul);
+      opacity: 1;
+    }
+    .btn-filtro.ativo:focus {
+      box-shadow: 0 0 0 3px rgba(15, 106, 167, 0.3);
+    }
+    .btn-filtro.ativo:hover {
+      background: #0e5a9d;
+      border-color: #0e5a9d;
+      color: white;
+      opacity: 1;
+    }
+    .badge-tipo-1 {
+      background: #dcf8d4;
+      color: #1b6b31;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-tipo-2 {
+      background: #fce8e8;
+      color: #c41e1e;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-tipo-3 {
+      background: #e3f2fd;
+      color: #1565c0;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .btn-exportar {
+      padding: 6px 12px;
+      border: 1px solid var(--azul);
+      background: var(--azul);
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: white;
+      outline: none;
+      opacity: 1;
+    }
+    .btn-exportar:hover {
+      background: #0d4f8a;
+      border-color: #0d4f8a;
+      color: white;
+      opacity: 1;
+    }
+    .btn-exportar:focus {
+      box-shadow: 0 0 0 3px rgba(15, 106, 167, 0.3);
+    }
+    .btn-exportar:active {
+      background: #0d4f8a;
+    }
+  </style>
+<body>
+
+<!-- Loading -->
+<div id="loading"><div class="spinner"></div></div>
+
+<!-- Toasts -->
+<div id="toasts"></div>
+
+<!-- Shell -->
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div>
+        <img src="img/Logo.PNG" alt="Logo" />
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-secao">Principal</div>
+      <a class="nav-item" href="dashboard.html">
+        <div class="nav-icone">D</div>
+        <span>Dashboard</span>
+      </a>
+      
+      <a class="nav-item ativo" href="relatorios.html">
+        <div class="nav-icone">R</div>
+        <span>Relatórios</span>
+      </a>
+
+      <div class="nav-sep"></div>
+      <div class="nav-secao">Cadastros</div>
+
+      <a class="nav-item" href="index.html">
+        <div class="nav-icone">P</div>
+        <span>Produtos</span>
+      </a>
+
+      <a class="nav-item" href="estoque.html">
+        <div class="nav-icone">E</div>
+        <span>Estoque</span>
+      </a>
+
+      <div class="nav-sep"></div>
+      <div class="nav-secao">Administração</div>
+
+      <a class="nav-item" href="usuarios.html">
+        <div class="nav-icone">U</div>
+        <span>Usuários</span>
+      </a>
+
+      <div class="nav-sep"></div>
+      <a class="nav-item" id="btnSair">
+        <div class="nav-icone" style="background: var(--vermelho);">S</div>
+        <span>Sair</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-titulo">Ferragens Negrão</div>
+      <div class="topbar-sub">Sistema de Gestão · UniSenai</div>
+      <div class="topbar-avatar">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+        </svg>
+      </div>
+    </header>
+
+    <!-- CONTEÚDO -->
+    <main class="conteudo">
+
+      <!-- Cabeçalho -->
+      <div class="pagina-header">
+        <div>
+          <h1>Relatórios</h1>
+          <p>Dashboard e métricas do sistema</p>
+        </div>
+      </div>
+
+      <!-- Layout Grid do Dashboard -->
+      <div class="dashboard-grid">
+      </div>
+
+      <!-- Movimentações do Estoque -->
+      <div class="painel-tabela" style="margin-top: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div class="tabela-titulo" style="margin: 0;">Movimentações do Estoque</div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <button class="btn-filtro ativo" data-tipo="all">Todas</button>
+            <button class="btn-filtro" data-tipo="1">Entrada</button>
+            <button class="btn-filtro" data-tipo="2">Saída</button>
+            <button class="btn-filtro" data-tipo="3">Transferência</button>
+            <button class="btn-exportar" id="btnExportarPDF">
+              <svg style="width: 14px; height: 14px; display: inline; margin-right: 4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Exportar PDF
+            </button>
+          </div>
+        </div>
+        <div class="tabela-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Estoque Origem</th>
+                <th>Estoque Destino</th>
+                <th>Usuário</th>
+              </tr>
+            </thead>
+            <tbody id="movimentacoesTbody">
+              <tr><td colspan="7" class="td-vazio">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/relatorios.js"></script>
+</body>
+</html>

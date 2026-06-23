@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acesso · Ferragens Negrão</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    // Se o usuário já estiver logado, vai direto para o dashboard
+    if (localStorage.getItem('usuarioLogado')) {
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+</head>
+
+<body style="margin:0; padding:0; background: #1b2a3b;">
+
+  <!-- Background glows -->
+  <div class="login-wrapper">
+    <div class="login-bg-glow"></div>
+    <div class="login-bg-glow-right"></div>
+
+    <!-- Login Card -->
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-logo">
+          <img src="img/Logo_pt.png" alt="Ferragens Negrão Logo" onerror="this.style.display='none'" />
+        </div>
+        <h2>Ferragens Negrão</h2>
+        <p>Gerenciamento de Estoque · UniSenai</p>
+      </div>
+
+      <!-- Formulário -->
+      <form id="fLogin" class="login-form" novalidate>
+        <div class="fg">
+          <label for="iLogin">E-mail ou Nome <span class="req">*</span></label>
+          <input class="input" id="iLogin" type="text" placeholder="Ex: admin@negrao.com.br ou Administrador" required
+            autocomplete="username" />
+        </div>
+
+        <div class="fg">
+          <label for="iSenha">Senha <span class="req">*</span></label>
+          <div class="input-wrap">
+            <input class="input" id="iSenha" type="password" placeholder="Digite sua senha" required
+              autocomplete="current-password" />
+            <button type="button" class="btn-senha-toggle" id="btnSenhaToggle" title="Visualizar Senha">
+              <!-- Eye icon SVG -->
+              <svg id="eyeIcon" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="login-btn" id="btnLogin">
+          <span>Acessar Sistema</span>
+        </button>
+
+        <!-- Box de Dica (Facilitador para o Ator / Professor) -->
+        <div class="login-info-box">
+          <strong>Acesso para Avaliação:</strong><br />
+          • E-mail: <code>admin@negrao.com.br</code><br />
+          • Ou Nome: <code>Administrador</code><br />
+          • Senha: <code>admin123</code>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toasts dinâmicos -->
+  <div id="toasts"></div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/login.js"></script>
+</body>
+
+</html>

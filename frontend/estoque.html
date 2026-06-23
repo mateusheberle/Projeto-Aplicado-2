@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estoque · Ferragens Negrão</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    if (!localStorage.getItem('usuarioLogado')) {
+      window.location.href = 'login.html';
+    }
+  </script>
+  <style>
+    .setor-bloco { margin-bottom: 18px; }
+    .setor-titulo {
+      background: var(--sidebar-bg);
+      color: #fff;
+      padding: 9px 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading"><div class="spinner"></div></div>
+<div id="toasts"></div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div href="img/Logo.PNG">
+        <img src="img/Logo.PNG" alt="Logo" />
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-secao">Principal</div>
+      <a class="nav-item" href="dashboard.html">
+        <div class="nav-icone">D</div>
+        <span>Dashboard</span>
+      </a>
+      
+      <a class="nav-item" href="relatorios.html">
+        <div class="nav-icone">R</div>
+        <span>Relatórios</span>
+      </a>
+
+      <div class="nav-sep"></div>
+      <div class="nav-secao">Cadastros</div>
+
+      <a class="nav-item" href="index.html">
+        <div class="nav-icone">P</div>
+        <span>Produtos</span>
+      </a>
+
+      <a class="nav-item ativo" href="estoque.html">
+        <div class="nav-icone">E</div>
+        <span>Estoque</span>
+      </a>
+
+      <div class="nav-sep"></div>
+      <div class="nav-secao">Administração</div>
+
+      <a class="nav-item" href="usuarios.html">
+        <div class="nav-icone">U</div>
+        <span>Usuários</span>
+      </a>
+
+      <div class="nav-sep"></div>
+      <a class="nav-item" id="btnSair">
+        <div class="nav-icone" style="background: var(--vermelho);">S</div>
+        <span>Sair</span>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-titulo">Ferragens Negrão</div>
+      <div class="topbar-sub">Sistema de Gestão · UniSenai</div>
+      <div class="topbar-user">
+        <span class="user-name-tag" id="activeUserName">Administrador</span>
+        <div class="topbar-avatar">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+          </svg>
+        </div>
+      </div>
+    </header>
+
+    <main class="conteudo">
+      <div class="pagina-header">
+        <div>
+          <h1>Estoque</h1>
+          <p>Gerenciamento de estoques, localizações e produtos</p>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-novo" id="btnGerenciarEstoques" style="background:#4a5568;">Estoques</button>
+          <button class="btn-novo" id="btnGerenciarLocalizacoes" style="background:#4a5568;">Localizações</button>
+          <button class="btn-novo" id="btnMovimentacao" style="background:#1e4db7;">Movimentação</button>
+        </div>
+      </div>
+
+      <div class="painel-filtros">
+        <div class="busca-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input class="input-busca" id="iBusca" type="text" placeholder="Buscar por produto, localização ou setor..." />
+        </div>
+      </div>
+
+      <div id="tabelaEstoque">
+        <div style="padding:52px 20px;text-align:center;color:var(--muted)">Carregando...</div>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-top:8px;" id="rodapeInfo"></div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ── Modal Novo/Editar Estoque ── -->
+<div class="overlay" id="overlay"></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="modal-head">
+    <h2 id="modalTitulo">Novo Estoque</h2>
+    <button class="btn-cancelar" id="btnCancelarH" style="height:34px;padding:0 14px;font-size:13px;">Fechar</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-grid">
+
+      <div class="fg full">
+        <label for="iNomeEstoque">Nome do Estoque <span class="req">*</span></label>
+        <input class="input" id="iNomeEstoque" type="text" placeholder="Ex: Depósito Principal" maxlength="45" />
+        <span class="msg-erro" id="erroNomeEstoque"></span>
+      </div>
+
+      <!-- Localização existente -->
+      <div class="fg full">
+        <label for="iLocalizacao">Localização <span class="req">*</span></label>
+        <select class="sel" id="iLocalizacao" onchange="onChangeLocalizacaoSelect()">
+          <option value="">— Selecione ou crie uma nova —</option>
+        </select>
+        <span class="msg-erro" id="erroLocalizacao"></span>
+      </div>
+
+      <!-- Botão para criar nova localização inline -->
+      <div class="fg full">
+        <button type="button" id="btnNovaLocalizacao"
+          style="background:none;border:1px dashed var(--borda);border-radius:var(--radius);
+                 padding:8px 14px;font-size:13px;color:var(--azul);cursor:pointer;width:100%;
+                 text-align:left;transition:background .15s;"
+          onmouseover="this.style.background='#f0f4ff'"
+          onmouseout="this.style.background='none'"
+          onclick="toggleNovaLocalizacao()">
+          + Nova localização
+        </button>
+      </div>
+
+      <!-- Formulário inline de nova localização (oculto por padrão) -->
+      <div class="fg full" id="painelNovaLoc" style="display:none;">
+        <div style="background:#f7f9fc;border:1px solid var(--borda);border-radius:var(--radius);padding:14px 16px;">
+          <div style="font-size:12.5px;font-weight:700;color:var(--texto);margin-bottom:10px;">Nova Localização</div>
+          <div class="form-grid">
+            <div class="fg">
+              <label for="iNovaLocNome">Nome <span class="req">*</span></label>
+              <input class="input" id="iNovaLocNome" type="text" placeholder="Ex: Estante 1" maxlength="45" />
+              <span class="msg-erro" id="erroNovaLocNome"></span>
+            </div>
+            <div class="fg">
+              <label for="iNovaLocSetor">Setor <span class="req">*</span></label>
+              <input class="input" id="iNovaLocSetor" type="text" placeholder="Ex: Almoxarifado" maxlength="45" />
+              <span class="msg-erro" id="erroNovaLocSetor"></span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button type="button" class="btn-salvar" id="btnSalvarNovaLoc"
+              style="height:36px;padding:0 18px;font-size:13px;"
+              onclick="salvarNovaLocalizacao()">
+              Criar localização
+            </button>
+            <button type="button" class="btn-cancelar" id="btnCancelarNovaLoc"
+              style="height:36px;padding:0 14px;font-size:13px;"
+              onclick="toggleNovaLocalizacao()">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn-cancelar" id="btnCancelar">Cancelar</button>
+    <button class="btn-salvar" id="btnSalvar">Salvar</button>
+  </div>
+</div>
+
+<!-- ── Modal Excluir Estoque ── -->
+<div class="overlay" id="overlayEx"></div>
+<div class="modal modal-excluir" id="modalEx" role="alertdialog">
+  <div class="excluir-titulo">Confirmar Exclusão</div>
+  <div class="excluir-desc">
+    Deseja excluir o estoque<br><strong id="exNome"></strong>?<br>
+    <small>Só é possível excluir estoques sem produtos.</small>
+  </div>
+  <div class="excluir-acoes">
+    <button class="btn-cancelar" id="btnCancelarEx">Cancelar</button>
+    <button class="btn-salvar" id="btnConfEx" style="background:#c0392b">Excluir</button>
+  </div>
+</div>
+
+<!-- ══ Modal Movimentação ══ -->
+<div class="overlay" id="overlayMov"></div>
+<div class="modal" id="modalMov" role="dialog" aria-modal="true" style="width:min(520px,96vw)">
+  <div class="modal-head">
+    <h2 id="movTitulo">Movimentação</h2>
+    <button class="btn-cancelar" id="btnFecharMov" style="height:34px;padding:0 14px;font-size:13px;">Fechar</button>
+  </div>
+  <div class="modal-body">
+    <div style="display:flex;gap:8px;margin-bottom:20px;">
+      <button onclick="selecionarTipo('entrada')" id="btnTipoEntrada"
+        style="flex:1;height:44px;border-radius:var(--radius);border:2px solid #e8f8ef;background:#e8f8ef;color:#1b6b31;font-weight:600;font-size:13px;cursor:pointer;">
+        + Entrada
+      </button>
+      <button onclick="selecionarTipo('saida')" id="btnTipoSaida"
+        style="flex:1;height:44px;border-radius:var(--radius);border:2px solid #fdecea;background:#fdecea;color:#c0392b;font-weight:600;font-size:13px;cursor:pointer;">
+        - Saída
+      </button>
+      <button onclick="selecionarTipo('transferencia')" id="btnTipoTransferencia"
+        style="flex:1;height:44px;border-radius:var(--radius);border:2px solid #e8effe;background:#e8effe;color:#1e4db7;font-weight:600;font-size:13px;cursor:pointer;">
+        Transferência
+      </button>
+    </div>
+
+    <div class="form-grid">
+      <div class="fg full">
+        <label for="iMovProduto">Produto <span class="req">*</span></label>
+        <select class="sel" id="iMovProduto" onchange="onChangeProdutoMov()">
+          <option value="">— Selecione —</option>
+        </select>
+        <span class="msg-erro" id="erroMovProduto"></span>
+      </div>
+
+      <div class="fg full">
+        <label for="iMovEstoque" id="labelMovEstoque">Estoque <span class="req">*</span></label>
+        <select class="sel" id="iMovEstoque" onchange="onChangeEstoqueMov()">
+          <option value="">— Selecione —</option>
+        </select>
+        <span class="msg-erro" id="erroMovEstoque"></span>
+      </div>
+
+      <div class="fg full" id="campoMovLocalizacao" style="display:none;">
+        <label for="iMovLocalizacao">Localização <span class="req">*</span></label>
+        <select class="sel" id="iMovLocalizacao" onchange="onChangeLocalizacaoMov()">
+          <option value="">— Selecione —</option>
+        </select>
+        <span id="movInfoEstoque" style="font-size:12px;color:var(--muted);margin-top:3px;display:block;"></span>
+        <span class="msg-erro" id="erroMovLocalizacao"></span>
+      </div>
+
+      <div class="fg full" id="campoMovDestino" style="display:none;">
+        <label for="iMovDestino">Estoque de Destino <span class="req">*</span></label>
+        <select class="sel" id="iMovDestino" onchange="onChangeDestineMov()">
+          <option value="">— Selecione —</option>
+        </select>
+        <span class="msg-erro" id="erroMovDestino"></span>
+      </div>
+
+      <div class="fg full" id="campoMovLocalizacaoDestino" style="display:none;">
+        <label for="iMovLocalizacaoDestino">Localização de Destino <span class="req">*</span></label>
+        <select class="sel" id="iMovLocalizacaoDestino">
+          <option value="">— Selecione —</option>
+        </select>
+        <span class="msg-erro" id="erroMovLocalizacaoDestino"></span>
+      </div>
+
+      <div class="fg" id="campoQtdMin" style="display:none;">
+        <label for="iMovQtdMin">Quantidade Mínima</label>
+        <input class="input" id="iMovQtdMin" type="number" min="0" placeholder="0" />
+      </div>
+
+      <div class="fg">
+        <label for="iMovQtd">Quantidade <span class="req">*</span></label>
+        <input class="input" id="iMovQtd" type="number" min="1" placeholder="0" />
+        <span class="msg-erro" id="erroMovQtd"></span>
+      </div>
+
+      <div class="fg full">
+        <label for="iMovObs">Observação</label>
+        <input class="input" id="iMovObs" type="text" placeholder="Opcional" maxlength="255" />
+      </div>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn-cancelar" id="btnCancelarMov">Cancelar</button>
+    <button class="btn-salvar" id="btnConfMov">Confirmar</button>
+  </div>
+</div>
+
+<!-- ══ Modal Gerenciar Localizações ══ -->
+<div class="overlay" id="overlayLoc"></div>
+<div class="modal" id="modalLoc" role="dialog" aria-modal="true" style="width:min(640px,96vw)">
+  <div class="modal-head">
+    <h2>Gerenciar Localizações</h2>
+    <button class="btn-cancelar" id="btnFecharLoc" style="height:34px;padding:0 14px;font-size:13px;">Fechar</button>
+  </div>
+  <div class="modal-body" style="padding-bottom:8px;">
+    <div style="background:#f7f9fc;border:1px solid var(--borda);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--texto)" id="tituloFormLoc">Nova Localização</div>
+      <div class="form-grid">
+        <div class="fg">
+          <label for="lNome">Nome <span class="req">*</span></label>
+          <input class="input" id="lNome" type="text" placeholder="Ex: Estante 1" maxlength="45" />
+          <span class="msg-erro" id="lErroNome"></span>
+        </div>
+        <div class="fg">
+          <label for="lSetor">Setor <span class="req">*</span></label>
+          <input class="input" id="lSetor" type="text" placeholder="Ex: Almoxarifado" maxlength="45" />
+          <span class="msg-erro" id="lErroSetor"></span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn-salvar" id="lBtnSalvar" style="height:36px;padding:0 18px;font-size:13px;">Salvar</button>
+        <button class="btn-cancelar" id="lBtnCancelar" style="height:36px;padding:0 14px;font-size:13px;display:none;">Cancelar edição</button>
+      </div>
+    </div>
+    <div class="tabela-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Nome</th><th>Setor</th><th>Ações</th></tr></thead>
+        <tbody id="tbodyLoc"><tr><td colspan="4" class="td-vazio">Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Excluir Localização ── -->
+<div class="overlay" id="overlayExLoc"></div>
+<div class="modal modal-excluir" id="modalExLoc" role="alertdialog">
+  <div class="excluir-titulo">Confirmar Exclusão</div>
+  <div class="excluir-desc">
+    Deseja excluir a localização<br><strong id="exNomeLoc"></strong>?<br>
+    <small>Não é possível excluir localizações com estoques vinculados.</small>
+  </div>
+  <div class="excluir-acoes">
+    <button class="btn-cancelar" id="lBtnCancelarEx">Cancelar</button>
+    <button class="btn-salvar" id="lBtnConfEx" style="background:#c0392b">Excluir</button>
+  </div>
+</div>
+
+
+<!-- ══ Modal Gerenciar Estoques ══ -->
+<div class="overlay" id="overlayEst"></div>
+<div class="modal" id="modalEst" role="dialog" aria-modal="true" style="width:min(640px,96vw)">
+  <div class="modal-head">
+    <h2>Gerenciar Estoques</h2>
+    <button class="btn-cancelar" id="btnFecharEst" style="height:34px;padding:0 14px;font-size:13px;">Fechar</button>
+  </div>
+  <div class="modal-body" style="padding-bottom:8px;">
+    <div style="background:#f7f9fc;border:1px solid var(--borda);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--texto)" id="tituloFormEst">Novo Estoque</div>
+      <div class="form-grid">
+        <div class="fg full">
+          <label for="eNome">Nome <span class="req">*</span></label>
+          <input class="input" id="eNome" type="text" placeholder="Ex: Depósito Principal" maxlength="45" />
+          <span class="msg-erro" id="eErroNome"></span>
+        </div>
+
+        <!-- Nova localização inline -->
+        <div class="fg full">
+          <button type="button" id="btnNovaLocalizacaoEst"
+            style="background:none;border:1px dashed var(--borda);border-radius:var(--radius);
+                   padding:8px 14px;font-size:13px;color:var(--azul);cursor:pointer;width:100%;text-align:left;"
+            onclick="toggleNovaLocalizacaoEst()">
+            + Nova localização
+          </button>
+        </div>
+        <div class="fg full" id="painelNovaLocEst" style="display:none;">
+          <div style="background:#f7f9fc;border:1px solid var(--borda);border-radius:var(--radius);padding:14px 16px;">
+            <div style="font-size:12.5px;font-weight:700;color:var(--texto);margin-bottom:10px;">Nova Localização</div>
+            <div class="form-grid">
+              <div class="fg">
+                <label for="eNovaLocNome">Nome <span class="req">*</span></label>
+                <input class="input" id="eNovaLocNome" type="text" placeholder="Ex: Estante 1" maxlength="45" />
+                <span class="msg-erro" id="eErroNovaLocNome"></span>
+              </div>
+              <div class="fg">
+                <label for="eNovaLocSetor">Setor <span class="req">*</span></label>
+                <input class="input" id="eNovaLocSetor" type="text" placeholder="Ex: Almoxarifado" maxlength="45" />
+                <span class="msg-erro" id="eErroNovaLocSetor"></span>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px;">
+              <button type="button" class="btn-salvar" id="eBtnSalvarNovaLoc"
+                style="height:36px;padding:0 18px;font-size:13px;" onclick="salvarNovaLocalizacaoEst()">
+                Criar localização
+              </button>
+              <button type="button" class="btn-cancelar" id="eBtnCancelarNovaLoc"
+                style="height:36px;padding:0 14px;font-size:13px;" onclick="toggleNovaLocalizacaoEst()">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn-salvar" id="eBtnSalvar" style="height:36px;padding:0 18px;font-size:13px;">Salvar</button>
+        <button class="btn-cancelar" id="eBtnCancelar" style="height:36px;padding:0 14px;font-size:13px;display:none;">Cancelar edição</button>
+      </div>
+    </div>
+    <div class="tabela-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Nome</th><th>Localização</th><th>Setor</th><th>Ações</th></tr></thead>
+        <tbody id="tbodyEst"><tr><td colspan="5" class="td-vazio">Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Excluir Estoque ── -->
+<div class="overlay" id="overlayExEst"></div>
+<div class="modal modal-excluir" id="modalExEst" role="alertdialog">
+  <div class="excluir-titulo">Confirmar Exclusão</div>
+  <div class="excluir-desc">
+    Deseja excluir o estoque<br><strong id="exNomeEst"></strong>?<br>
+    <small>Só é possível excluir estoques sem produtos.</small>
+  </div>
+  <div class="excluir-acoes">
+    <button class="btn-cancelar" id="eBtnCancelarEx">Cancelar</button>
+    <button class="btn-salvar" id="eBtnConfEx" style="background:#c0392b">Excluir</button>
+  </div>
+</div>
+
+<!-- ── Modal Editar Item ── -->
+<div class="overlay" id="overlayEditItem"></div>
+<div class="modal" id="modalEditItem" role="dialog" aria-modal="true" style="width:min(420px,96vw)">
+  <div class="modal-head">
+    <h2>Editar Item</h2>
+    <button class="btn-cancelar" id="btnFecharEditItem" style="height:34px;padding:0 14px;font-size:13px;">Fechar</button>
+  </div>
+  <div class="modal-body">
+    <div style="margin-bottom:14px;padding:10px 14px;background:#f7f9fc;border-radius:var(--radius);font-size:13px;">
+      <strong id="editItemNome"></strong>
+    </div>
+    <div class="form-grid">
+      <div class="fg full">
+        <label for="iEditQtdMin">Quantidade Mínima</label>
+        <input class="input" id="iEditQtdMin" type="number" min="0" placeholder="0" />
+      </div>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn-cancelar" id="btnCancelarEditItem">Cancelar</button>
+    <button class="btn-salvar" id="btnConfEditItem">Salvar</button>
+  </div>
+</div>
+
+<!-- ── Modal Excluir Item ── -->
+<div class="overlay" id="overlayExItem"></div>
+<div class="modal modal-excluir" id="modalExItem" role="alertdialog">
+  <div class="excluir-titulo">Confirmar Exclusão</div>
+  <div class="excluir-desc">
+    Deseja remover o produto<br><strong id="exNomeItem"></strong><br>do estoque?<br>
+    <small>Esta ação não pode ser desfeita.</small>
+  </div>
+  <div class="excluir-acoes">
+    <button class="btn-cancelar" id="btnCancelarExItem">Cancelar</button>
+    <button class="btn-salvar" id="btnConfExItem" style="background:#c0392b">Remover</button>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/estoque.js"></script>
+</body>
+</html>

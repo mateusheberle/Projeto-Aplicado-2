@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard · Ferragens Negrão</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    if (!localStorage.getItem('usuarioLogado')) {
+      window.location.href = 'login.html';
+    }
+  </script>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading"><div class="spinner"></div></div>
+
+<!-- Toasts -->
+<div id="toasts"></div>
+
+<!-- Shell -->
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div href="img/Logo.PNG">
+        <img src="img/Logo.PNG" alt="Logo" />
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-secao">Principal</div>
+
+      <a class="nav-item ativo" href="dashboard.html">
+        <div class="nav-icone">D</div>
+        <span>Dashboard</span>
+      </a>
+
+      <a class="nav-item" href="relatorios.html">
+        <div class="nav-icone">R</div>
+        <span>Relatórios</span>
+      </a>
+
+      <div class="nav-sep"></div>
+      <div class="nav-secao">Cadastros</div>
+
+      <a class="nav-item" href="index.html">
+        <div class="nav-icone">P</div>
+        <span>Produtos</span>
+      </a>
+
+      <a class="nav-item" href="estoque.html">
+        <div class="nav-icone">E</div>
+        <span>Estoque</span>
+      </a>
+      
+      <div class="nav-sep"></div>
+      <div class="nav-secao">Administração</div>
+
+      <a class="nav-item" href="usuarios.html">
+        <div class="nav-icone">U</div>
+        <span>Usuários</span>
+      </a>
+
+      <div class="nav-sep"></div>
+      <a class="nav-item" id="btnSair">
+        <div class="nav-icone" style="background: var(--vermelho);">S</div>
+        <span>Sair</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-titulo">Ferragens Negrão</div>
+      <div class="topbar-sub">Sistema de Gestão · UniSenai</div>
+      <div class="topbar-user">
+        <span class="user-name-tag" id="activeUserName">Administrador</span>
+        <div class="topbar-avatar">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+          </svg>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTEÚDO -->
+    <main class="conteudo">
+
+      <!-- Cabeçalho -->
+      <div class="pagina-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p>Visão geral do sistema e atalhos operacionais</p>
+        </div>
+      </div>
+
+      <div class="dashboard-cards">
+        <div class="card-metric">
+          <div class="card-label">Total de produtos</div>
+          <div class="card-value" id="cardTotalProdutos">—</div>
+        </div>
+        <div class="card-metric">
+          <div class="card-label">Categorias ativas</div>
+          <div class="card-value" id="cardCategorias">—</div>
+        </div>
+        <div class="card-metric">
+          <div class="card-label">Produto de maior valor</div>
+          <div class="card-value" id="cardProdutoMaisCaro">—</div>
+        </div>
+      </div>
+
+      <div class="painel-tabela" style="margin-bottom: 24px;">
+        <div class="tabela-titulo">Resumo de produtos</div>
+        <div class="dashboard-resumo" id="rodapeInfo">Carregando...</div>
+      </div>
+
+      <!-- Atalhos -->
+      <div class="painel-tabela">
+        <div class="tabela-titulo">Atalhos</div>
+        <div class="dashboard-links-grid">
+          <a class="dashboard-link" href="index.html?cadastrarProduto=1">
+            <span class="dashboard-link-title">Novo produto</span>
+            <span class="dashboard-link-sub">Cadastrar item no catálogo</span>
+          </a>
+
+          <a class="dashboard-link" href="index.html">
+            <span class="dashboard-link-title">Produtos</span>
+            <span class="dashboard-link-sub">Consultar e editar cadastros</span>
+          </a>
+
+          <a class="dashboard-link" href="estoque.html">
+            <span class="dashboard-link-title">Estoque</span>
+            <span class="dashboard-link-sub">Gerenciar entradas, saídas e locais</span>
+          </a>
+
+          <a class="dashboard-link" href="relatorios.html">
+            <span class="dashboard-link-title">Relatórios</span>
+            <span class="dashboard-link-sub">Acompanhar métricas e movimentações</span>
+          </a>
+
+          <a class="dashboard-link" href="usuarios.html">
+            <span class="dashboard-link-title">Usuários</span>
+            <span class="dashboard-link-sub">Acessar gestão de contas</span>
+          </a>
+
+          <a class="dashboard-link" href="login.html">
+            <span class="dashboard-link-title">Trocar sessão</span>
+            <span class="dashboard-link-sub">Entrar com outro usuário</span>
+          </a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

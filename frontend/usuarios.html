@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usuários · Ferragens Negrão</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    if (!localStorage.getItem('usuarioLogado')) {
+      window.location.href = 'login.html';
+    }
+  </script>
+</head>
+<body>
+
+<div id="loading"><div class="spinner"></div></div>
+<div id="toasts"></div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div href="img/Logo.PNG">
+        <img src="img/Logo.PNG" alt="Logo" />
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-secao">Principal</div>
+      <a class="nav-item" href="dashboard.html">
+        <div class="nav-icone">D</div>
+        <span>Dashboard</span>
+      </a>
+      
+      <a class="nav-item" href="relatorios.html">
+        <div class="nav-icone">R</div>
+        <span>Relatórios</span>
+      </a>
+
+      <div class="nav-sep"></div>
+      <div class="nav-secao">Cadastros</div>
+
+      <a class="nav-item" href="index.html">
+        <div class="nav-icone">P</div>
+        <span>Produtos</span>
+      </a>
+
+      <a class="nav-item" href="estoque.html">
+        <div class="nav-icone">E</div>
+        <span>Estoque</span>
+      </a>
+
+      <div class="nav-sep"></div>
+      <div class="nav-secao">Administração</div>
+
+      <a class="nav-item ativo" href="usuarios.html">
+        <div class="nav-icone">U</div>
+        <span>Usuários</span>
+      </a>
+
+      <div class="nav-sep"></div>
+      <a class="nav-item" id="btnSair">
+        <div class="nav-icone" style="background: var(--vermelho);">S</div>
+        <span>Sair</span>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-titulo">Ferragens Negrão</div>
+      <div class="topbar-sub">Sistema de Gestão · UniSenai</div>
+      <div class="topbar-user">
+        <span class="user-name-tag" id="activeUserName">Administrador</span>
+        <div class="topbar-avatar">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+          </svg>
+        </div>
+      </div>
+    </header>
+
+    <main class="conteudo">
+      <div class="pagina-header">
+        <div>
+          <h1>Usuários</h1>
+          <p>Cadastro e gerenciamento de usuários do sistema</p>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-novo" id="btnGerenciarPerfis" style="background:#4a5568;">Gerenciar Perfis</button>
+          <button class="btn-novo" id="btnNovo">+ Novo Usuário</button>
+        </div>
+      </div>
+
+      <div class="painel-filtros">
+        <div class="busca-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input class="input-busca" id="iBusca" type="text" placeholder="Buscar por nome ou e-mail..." />
+        </div>
+      </div>
+
+      <div class="painel-tabela">
+        <div class="tabela-titulo">Relação de Usuários</div>
+        <div class="tabela-wrap">
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Perfis</th><th>Ações</th></tr>
+            </thead>
+            <tbody id="tbody">
+              <tr><td colspan="5" class="td-vazio">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tabela-rodape" id="rodapeInfo"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="modal-head">
+    <h2 id="modalTitulo">Novo Usuário</h2>
+    <button class="btn-cancelar" id="btnCancelarH" style="height:34px;padding:0 14px;font-size:13px;">Fechar</button>
+  </div>
+  <div class="modal-body">
+    <form id="fUsuario" novalidate>
+      <div class="form-grid">
+        <div class="fg full">
+          <label for="iNome">Nome <span class="req">*</span></label>
+          <input class="input" id="iNome" type="text" placeholder="Nome completo" maxlength="45" />
+          <span class="msg-erro" id="erroNome"></span>
+        </div>
+        <div class="fg full">
+          <label for="iEmail">E-mail <span class="req">*</span></label>
+          <input class="input" id="iEmail" type="email" placeholder="usuario@email.com" maxlength="45" />
+          <span class="msg-erro" id="erroEmail"></span>
+        </div>
+        <div class="fg full" id="campoSenha">
+          <label for="iSenha">Senha <span class="req">*</span></label>
+          <input class="input" id="iSenha" type="password" placeholder="Mínimo 6 caracteres" maxlength="45" />
+          <span class="msg-erro" id="erroSenha"></span>
+        </div>
+        <div class="fg full">
+          <label>Perfis de Acesso</label>
+          <div id="listaPerfisCheck" style="border:1px solid var(--borda);border-radius:var(--radius);padding:10px 14px;display:flex;flex-direction:column;gap:8px;min-height:48px;background:#fff;">
+            <span style="color:var(--muted);font-size:13px;">Carregando perfis...</span>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-foot">
+    <button class="btn-cancelar" id="btnCancelar">Cancelar</button>
+    <button class="btn-salvar" id="btnSalvar">Salvar</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlayEx"></div>
+<div class="modal modal-excluir" id="modalEx" role="alertdialog">
+  <div class="excluir-titulo">Confirmar Exclusão</div>
+  <div class="excluir-desc">
+    Deseja excluir o usuário<br><strong id="exNome"></strong>?<br>
+    <small>Esta ação não pode ser desfeita.</small>
+  </div>
+  <div class="excluir-acoes">
+    <button class="btn-cancelar" id="btnCancelarEx">Cancelar</button>
+    <button class="btn-salvar" id="btnConfEx" style="background:#c0392b">Excluir</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlayPerfis"></div>
+<div class="modal" id="modalPerfis" role="dialog" aria-modal="true" style="width:min(640px,96vw);">
+  <div class="modal-head">
+    <h2>Gerenciar Perfis</h2>
+    <button class="btn-cancelar" id="btnFecharPerfis" style="height:34px;padding:0 14px;font-size:13px;">Fechar</button>
+  </div>
+  <div class="modal-body" style="padding-bottom:8px;">
+    <div style="background:#f7f9fc;border:1px solid var(--borda);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--texto)" id="tituloFormPerfil">Novo Perfil</div>
+      <div class="form-grid">
+        <div class="fg">
+          <label for="pNome">Nome <span class="req">*</span></label>
+          <input class="input" id="pNome" type="text" placeholder="Ex: Estoquista" maxlength="45" />
+          <span class="msg-erro" id="pErroNome"></span>
+        </div>
+        <div class="fg">
+          <label for="pPermissao">Permissão <span class="req">*</span></label>
+          <select class="sel" id="pPermissao">
+            <option value="">— Selecione —</option>
+            <option value="ADMIN">Administrador</option>
+            <option value="GERENTE">Gerente</option>
+            <option value="ESTOQUE">Estoquista</option>
+            <option value="CONSULTOR">Consultor</option>
+          </select>
+          <span class="msg-erro" id="pErroPermissao"></span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn-salvar" id="pBtnSalvar" style="height:36px;padding:0 18px;font-size:13px;">Salvar</button>
+        <button class="btn-cancelar" id="pBtnCancelar" style="height:36px;padding:0 14px;font-size:13px;display:none;">Cancelar edição</button>
+      </div>
+    </div>
+    <div class="tabela-wrap">
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Nome</th><th>Permissão</th><th>Usuários</th><th>Ações</th></tr>
+        </thead>
+        <tbody id="tbodyPerfis">
+          <tr><td colspan="5" class="td-vazio">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlayExPerfil"></div>
+<div class="modal modal-excluir" id="modalExPerfil" role="alertdialog">
+  <div class="excluir-titulo">Confirmar Exclusão</div>
+  <div class="excluir-desc">
+    Deseja excluir o perfil<br><strong id="exNomePerfil"></strong>?<br>
+    <small>Usuários vinculados perderão este perfil.</small>
+  </div>
+  <div class="excluir-acoes">
+    <button class="btn-cancelar" id="pBtnCancelarEx">Cancelar</button>
+    <button class="btn-salvar" id="pBtnConfEx" style="background:#c0392b">Excluir</button>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/usuarios.js"></script>
+</body>
+</html>

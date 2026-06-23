@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Produtos · Ferragens Negrão</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    // Guarda de Sessão: Redireciona imediatamente se não autenticado
+    if (!localStorage.getItem('usuarioLogado')) {
+      window.location.href = 'login.html';
+    }
+  </script>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading"><div class="spinner"></div></div>
+
+<!-- Toasts -->
+<div id="toasts"></div>
+
+<!-- Shell -->
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div href="img/Logo.PNG">
+        <img src="img/Logo.PNG" alt="Logo" />
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-secao">Principal</div>
+      <a class="nav-item" href="dashboard.html">
+        <div class="nav-icone">D</div>
+        <span>Dashboard</span>
+      </a>
+      
+      <a class="nav-item" href="relatorios.html">
+        <div class="nav-icone">R</div>
+        <span>Relatórios</span>
+      </a>
+
+      <div class="nav-sep"></div>
+      <div class="nav-secao">Cadastros</div>
+
+      <a class="nav-item ativo" href="index.html">
+        <div class="nav-icone">P</div>
+        <span>Produtos</span>
+      </a>
+
+      <a class="nav-item" href="estoque.html">
+        <div class="nav-icone">E</div>
+        <span>Estoque</span>
+      </a>
+      
+      <div class="nav-sep"></div>
+      <div class="nav-secao">Administração</div>
+
+      <a class="nav-item" href="usuarios.html">
+        <div class="nav-icone">U</div>
+        <span>Usuários</span>
+      </a>
+
+      <div class="nav-sep"></div>
+      <a class="nav-item" id="btnSair">
+        <div class="nav-icone" style="background: var(--vermelho);">S</div>
+        <span>Sair</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-titulo">Ferragens Negrão</div>
+      <div class="topbar-sub">Sistema de Gestão · UniSenai</div>
+      <div class="topbar-user">
+        <span class="user-name-tag" id="activeUserName">Administrador</span>
+        <div class="topbar-avatar">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+          </svg>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTEÚDO -->
+    <main class="conteudo">
+
+      <!-- Cabeçalho -->
+      <div class="pagina-header">
+        <div>
+          <h1>Produtos</h1>
+          <p>Cadastro e gerenciamento de produtos</p>
+        </div>
+        <button class="btn-novo" id="btnNovo">+ Novo Produto</button>
+      </div>
+
+      <!-- Filtros -->
+      <div class="painel-filtros">
+        <div class="busca-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input class="input-busca" id="iBusca" type="text"
+            placeholder="Buscar por nome, SKU ou descrição..." />
+        </div>
+
+        <select class="select-cat" id="sCategoria">
+          <option value="">Todas as categorias</option>
+          <option>Ferramentas Manuais</option>
+          <option>Ferramentas Elétricas</option>
+          <option>Parafusos e Fixação</option>
+          <option>Tintas</option>
+          <option>Elétrica</option>
+          <option>Hidráulica</option>
+          <option>Abrasivos</option>
+          <option>Outros</option>
+        </select>
+      </div>
+
+      <!-- Tabela -->
+      <div class="painel-tabela">
+        <div class="tabela-titulo">Relação de Produtos</div>
+
+        <div class="tabela-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>SKU</th>
+                <th>Nome</th>
+                <th>Descrição</th>
+                <th>Preço</th>
+                <th>Categoria</th>
+                <th>Marca</th>
+                <th>Unid.</th>
+                <th>Estoque</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr><td colspan="9" class="td-vazio">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tabela-rodape" id="rodapeInfo"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+
+<!-- ── Overlay principal ── -->
+<div class="overlay" id="overlay"></div>
+
+<!-- ── Modal Criar / Editar ── -->
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="modal-head">
+    <h2 id="modalTitulo">Novo Produto</h2>
+    <button class="btn-cancelar" id="btnCancelarH" style="height:34px;padding:0 14px;font-size:13px;">Fechar</button>
+  </div>
+
+  <div class="modal-body">
+    <form id="fProduto" novalidate>
+      <div class="form-grid">
+
+        <div class="fg">
+          <label for="iSku">SKU <span class="req">*</span></label>
+          <input class="input" id="iSku" type="text" placeholder="Ex: FERR-001" maxlength="50" />
+        </div>
+
+        <div class="fg">
+          <label for="iNome">Nome <span class="req">*</span></label>
+          <input class="input" id="iNome" type="text" placeholder="Nome do produto" maxlength="45" />
+        </div>
+
+        <div class="fg full">
+          <label for="iDescricao">Descrição</label>
+          <input class="input" id="iDescricao" type="text" placeholder="Breve descrição" maxlength="255" />
+        </div>
+
+        <div class="fg">
+          <label for="iPreco">Preço (R$) <span class="req">*</span></label>
+          <input class="input" id="iPreco" type="number" min="0.01" step="0.01" placeholder="0,00" />
+        </div>
+
+        <div class="fg">
+          <label for="iCategoria">Categoria</label>
+          <select class="sel" id="iCategoria">
+            <option value="">— Selecione —</option>
+            <option>Ferramentas Manuais</option>
+            <option>Ferramentas Elétricas</option>
+            <option>Parafusos e Fixação</option>
+            <option>Tintas</option>
+            <option>Elétrica</option>
+            <option>Hidráulica</option>
+            <option>Abrasivos</option>
+            <option>Outros</option>
+          </select>
+        </div>
+
+        <div class="fg">
+          <label for="iMarca">Marca</label>
+          <input class="input" id="iMarca" type="text" placeholder="Ex: Tramontina" maxlength="45" />
+        </div>
+
+        <div class="fg">
+          <label for="iUnidade">Unidade de Medida</label>
+          <select class="sel" id="iUnidade">
+            <option value="">— Selecione —</option>
+            <option value="un">Unidade (un)</option>
+            <option value="kg">Quilograma (kg)</option>
+            <option value="g">Grama (g)</option>
+            <option value="m">Metro (m)</option>
+            <option value="m2">Metro² (m²)</option>
+            <option value="l">Litro (l)</option>
+            <option value="ml">Mililitro (ml)</option>
+            <option value="cx">Caixa (cx)</option>
+            <option value="pc">Peça (pc)</option>
+          </select>
+        </div>
+
+        <div class="fg">
+          <label for="iEstoque">Qtd. em Estoque</label>
+          <input class="input" id="iEstoque" type="number" min="0" step="1" placeholder="0" />
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-foot">
+    <button class="btn-cancelar" id="btnCancelar">Cancelar</button>
+    <button class="btn-salvar" id="btnSalvar"
+      onclick="document.getElementById('fProduto').requestSubmit()">Salvar</button>
+  </div>
+</div>
+
+
+<!-- ── Overlay excluir ── -->
+<div class="overlay" id="overlayEx"></div>
+
+<!-- ── Modal Excluir ── -->
+<div class="modal modal-excluir" id="modalEx" role="alertdialog">
+  <div class="excluir-titulo">Confirmar Exclusão</div>
+  <div class="excluir-desc">
+    Deseja excluir o produto<br>
+    <strong id="exNome"></strong>?<br>
+    <small>Esta ação não pode ser desfeita.</small>
+  </div>
+  <div class="excluir-acoes">
+    <button class="btn-cancelar" id="btnCancelarEx">Cancelar</button>
+    <button class="btn-salvar" id="btnConfEx"
+      style="background:#c0392b">Excluir</button>
+  </div>
+</div>
+
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+
+      if (params.get('cadastrarProduto') === '1') {
+          document.getElementById('btnNovo').click();
+      }
+  });
+</script>
+</body>
+</html>
