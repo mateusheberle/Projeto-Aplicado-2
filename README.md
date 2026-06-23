@@ -142,5 +142,4 @@ npm test
 
 ## Apresentação
 
-<video src="video.mp4" controls width="100%"></video>
-
+[![Assistir no YouTube](https://img.youtube.com/vi/EcOsN-riWok/maxresdefault.jpg)](https://youtu.be/EcOsN-riWok)
